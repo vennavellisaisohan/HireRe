@@ -4,8 +4,6 @@
 
 **Live demo:** **[https://hirere.vercel.app](https://hirere.vercel.app)**
 
-**Local dev:** [http://localhost:3456](http://localhost:3456)
-
 HireRe goes beyond keyword matching. It uses **semantic embeddings**, a **skill ontology** (synonyms & related skills), and **explainable scoring** to rank candidates against job descriptions in seconds.
 
 ---
@@ -34,7 +32,7 @@ Every result includes **matched skills**, **missing skills**, **bonus skills**, 
 ┌─────────────────────┐     REST API      ┌──────────────────────────────┐
 │  Next.js Frontend   │ ◄──────────────► │  FastAPI Backend (port 8847)  │
 │  TypeScript/Tailwind│                   │  • Parser (PDF/DOCX/text)    │
-│  port 3456          │                   │  • Skill extractor           │
+│  (Vercel / port 3456)│                  │  • Skill extractor           │
 └─────────────────────┘                   │  • Sentence-transformers     │
                                           │  • Skill ontology            │
                                           │  • Scorer + explainer        │
@@ -54,7 +52,7 @@ cd backend
 python3 -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-./run.sh                    # starts on http://localhost:8847
+./run.sh                    # starts backend on port 8847
 ```
 
 > First run downloads the `all-MiniLM-L6-v2` embedding model (~90MB). Subsequent runs are fast.
@@ -64,21 +62,17 @@ pip install -r requirements.txt
 ```bash
 cd frontend
 npm install
-npm run dev                 # starts on http://localhost:3456
+npm run dev                 # starts frontend on port 3456
 ```
 
 ### 3. Demo
 
-**Online (UI):** [https://hirere.vercel.app](https://hirere.vercel.app) — frontend hosted on Vercel
-
-**Full demo (matching API):** run backend + frontend locally, then:
-
-1. Open [http://localhost:3456](http://localhost:3456)
+1. Open **[https://hirere.vercel.app](https://hirere.vercel.app)**
 2. Click **Demo** (pre-loaded)
 3. Click **Analyze candidates**
 4. See 4 candidates ranked with scores, matched/missing skills, and explanations
 
-> The live site shows the UI immediately. Candidate matching requires the FastAPI backend (local or deployed with `NEXT_PUBLIC_API_URL` set on Vercel).
+> Candidate matching requires the FastAPI backend. Set `NEXT_PUBLIC_API_URL` on Vercel to your deployed API URL.
 
 ---
 
@@ -87,7 +81,7 @@ npm run dev                 # starts on http://localhost:3456
 | Service | URL | Notes |
 |---------|-----|-------|
 | Frontend | [hirere.vercel.app](https://hirere.vercel.app) | Next.js on Vercel |
-| Backend | Local `http://localhost:8847` | Deploy to Render using `render.yaml` for production API |
+| Backend | Deploy separately | Use `render.yaml` or your preferred host |
 
 ---
 
@@ -95,7 +89,7 @@ npm run dev                 # starts on http://localhost:3456
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `NEXT_PUBLIC_API_URL` | No | Backend URL (default: `http://localhost:8847`) |
+| `NEXT_PUBLIC_API_URL` | No | Backend API URL for the frontend |
 | `OPENAI_API_KEY` | No | Enables LLM-enhanced explanations (rule-based fallback always works) |
 | `OPENAI_MODEL` | No | Default: `gpt-4o-mini` |
 | `CORS_ORIGINS` | No | Comma-separated origins for backend CORS |
