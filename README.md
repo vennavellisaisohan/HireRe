@@ -2,7 +2,9 @@
 
 **Intelligent resume-to-job matching for recruiters.**
 
-**[Open http://localhost:3456](http://localhost:3456)**
+**Live demo:** **[https://hirere.vercel.app](https://hirere.vercel.app)**
+
+**Local dev:** [http://localhost:3456](http://localhost:3456)
 
 HireRe goes beyond keyword matching. It uses **semantic embeddings**, a **skill ontology** (synonyms & related skills), and **explainable scoring** to rank candidates against job descriptions in seconds.
 
@@ -67,10 +69,25 @@ npm run dev                 # starts on http://localhost:3456
 
 ### 3. Demo
 
-1. **[Open http://localhost:3456](http://localhost:3456)**
+**Online (UI):** [https://hirere.vercel.app](https://hirere.vercel.app) — frontend hosted on Vercel
+
+**Full demo (matching API):** run backend + frontend locally, then:
+
+1. Open [http://localhost:3456](http://localhost:3456)
 2. Click **Demo** (pre-loaded)
 3. Click **Analyze candidates**
 4. See 4 candidates ranked with scores, matched/missing skills, and explanations
+
+> The live site shows the UI immediately. Candidate matching requires the FastAPI backend (local or deployed with `NEXT_PUBLIC_API_URL` set on Vercel).
+
+---
+
+## Deployment
+
+| Service | URL | Notes |
+|---------|-----|-------|
+| Frontend | [hirere.vercel.app](https://hirere.vercel.app) | Next.js on Vercel |
+| Backend | Local `http://localhost:8847` | Deploy to Render using `render.yaml` for production API |
 
 ---
 
