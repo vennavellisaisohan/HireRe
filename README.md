@@ -1,6 +1,8 @@
 # HireRe
 
-**Intelligent resume-to-job matching for recruiters** — built for the Microsoft College Codeathon.
+**Intelligent resume-to-job matching for recruiters.**
+
+**[Open http://localhost:3456](http://localhost:3456)**
 
 HireRe goes beyond keyword matching. It uses **semantic embeddings**, a **skill ontology** (synonyms & related skills), and **explainable scoring** to rank candidates against job descriptions in seconds.
 
@@ -65,9 +67,9 @@ npm run dev                 # starts on http://localhost:3456
 
 ### 3. Demo
 
-1. Open **http://localhost:3456**
-2. Click **Demo Data** (pre-loaded)
-3. Click **Run Matching**
+1. **[Open http://localhost:3456](http://localhost:3456)**
+2. Click **Demo** (pre-loaded)
+3. Click **Analyze candidates**
 4. See 4 candidates ranked with scores, matched/missing skills, and explanations
 
 ---
@@ -146,39 +148,6 @@ HireRe/
 ├── docs/              # Architecture & extension guide
 └── README.md
 ```
-
----
-
-## Deploy to Vercel (Frontend)
-
-The Next.js app is ready for Vercel. The FastAPI backend must be hosted separately (e.g. [Render](https://render.com)) because Vercel cannot run the Python ML server.
-
-### 1. Deploy backend (Render)
-
-1. Go to [render.com](https://render.com) → **New** → **Blueprint**
-2. Connect repo `vennavellisaisohan/HireRe` (uses `render.yaml`)
-3. After deploy, copy the API URL (e.g. `https://hirere-api.onrender.com`)
-
-### 2. Deploy frontend (Vercel)
-
-1. Go to [vercel.com/new](https://vercel.com/new)
-2. Import **vennavellisaisohan/HireRe** from GitHub
-3. Set **Root Directory** to `frontend`
-4. Add environment variable:
-   - `NEXT_PUBLIC_API_URL` = your Render backend URL (no trailing slash)
-5. Click **Deploy**
-
-Your app will be live at `https://your-project.vercel.app`. Matching uses the `/api` proxy to your backend.
-
-### CLI (optional)
-
-```bash
-cd frontend
-npx vercel login
-npx vercel --prod
-```
-
-Set `NEXT_PUBLIC_API_URL` in the Vercel project settings before deploying.
 
 ---
 
