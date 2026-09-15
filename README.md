@@ -4,6 +4,8 @@
 
 **Live demo:** **[https://hirere.vercel.app](https://hirere.vercel.app)**
 
+**Demo video:** [Watch HireRe walkthrough](./docs/HireRe.mov)
+
 HireRe goes beyond keyword matching. It uses **semantic embeddings**, a **skill ontology** (synonyms & related skills), and **explainable scoring** to rank candidates against job descriptions in seconds.
 
 ---
@@ -23,6 +25,14 @@ HireRe parses resumes and job descriptions (PDF/DOCX/text), extracts skills and 
 | Experience | 15% | Years of experience vs. job requirement |
 
 Every result includes **matched skills**, **missing skills**, **bonus skills**, and a **human-readable explanation**.
+
+---
+
+## Demo Video
+
+Walkthrough of the HireRe recruiter flow — upload a job, rank candidates, and review scores and explanations.
+
+**[Download / watch demo video](./docs/HireRe.mov)**
 
 ---
 
