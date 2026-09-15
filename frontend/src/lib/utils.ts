@@ -5,16 +5,23 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function scoreColor(score: number): string {
-  if (score >= 80) return "text-emerald-600 bg-emerald-50 border-emerald-200";
-  if (score >= 60) return "text-blue-600 bg-blue-50 border-blue-200";
-  if (score >= 40) return "text-amber-600 bg-amber-50 border-amber-200";
-  return "text-rose-600 bg-rose-50 border-rose-200";
+export function scoreLabel(score: number): string {
+  if (score >= 80) return "Strong fit";
+  if (score >= 60) return "Good fit";
+  if (score >= 40) return "Partial fit";
+  return "Weak fit";
 }
 
-export function scoreRingColor(score: number): string {
-  if (score >= 80) return "stroke-emerald-500";
-  if (score >= 60) return "stroke-blue-500";
-  if (score >= 40) return "stroke-amber-500";
-  return "stroke-rose-500";
+export function scoreAccent(score: number): string {
+  if (score >= 80) return "text-emerald-600";
+  if (score >= 60) return "text-blue-600";
+  if (score >= 40) return "text-amber-600";
+  return "text-red-600";
+}
+
+export function scoreBg(score: number): string {
+  if (score >= 80) return "bg-emerald-500";
+  if (score >= 60) return "bg-blue-500";
+  if (score >= 40) return "bg-amber-500";
+  return "bg-red-500";
 }

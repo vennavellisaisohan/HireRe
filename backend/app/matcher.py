@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from functools import lru_cache
 
 import numpy as np
@@ -26,6 +27,8 @@ WEIGHTS = {
 
 @lru_cache(maxsize=1)
 def _load_model():
+    if os.getenv("HIRERE_USE_EMBEDDINGS", "0") != "1":
+        return None, "tfidf-fallback"
     try:
         from sentence_transformers import SentenceTransformer
 

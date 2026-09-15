@@ -3,19 +3,24 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Tabs } from "@/components/ui/tabs";
+import { Alert } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
 import { checkHealth, matchFromText, matchFromUpload, type MatchResponse } from "@/lib/api";
 import { DEMO_JOB, DEMO_RESUMES } from "@/lib/demo-data";
 import { ResultsPanel } from "@/components/results-panel";
-import {
-  Brain,
-  FileText,
-  Loader2,
-  Sparkles,
-  Upload,
-  Zap,
-} from "lucide-react";
+import { ArrowRight, Loader2, Sparkles, Upload } from "lucide-react";
 
 type Mode = "demo" | "paste" | "upload";
+
+const MODES: { value: Mode; label: string }[] = [
+  { value: "demo", label: "Demo" },
+  { value: "paste", label: "Paste" },
+  { value: "upload", label: "Upload" },
+];
 
 export function MatcherApp() {
   const [mode, setMode] = useState<Mode>("demo");
@@ -29,12 +34,12 @@ export function MatcherApp() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<MatchResponse | null>(null);
-  const [apiStatus, setApiStatus] = useState<string>("checking...");
+  const [apiOnline, setApiOnline] = useState<boolean | null>(null);
 
   useEffect(() => {
     checkHealth()
-      .then((h) => setApiStatus(`${h.status} · ${h.model}`))
-      .catch(() => setApiStatus("offline"));
+      .then(() => setApiOnline(true))
+      .catch(() => setApiOnline(false));
   }, []);
 
   const loadDemo = useCallback(() => {
@@ -45,6 +50,11 @@ export function MatcherApp() {
     setResults(null);
     setError(null);
   }, []);
+
+  const handleModeChange = (next: Mode) => {
+    if (next === "demo") loadDemo();
+    else setMode(next);
+  };
 
   const parseResumeTexts = (raw: string) => {
     const chunks = raw.split(/---\s*/).filter(Boolean);
@@ -64,10 +74,7 @@ export function MatcherApp() {
       if (mode === "upload") {
         data = await matchFromUpload(jobTitle, jobDescription, jobFile, resumeFiles);
       } else {
-        const resumes =
-          mode === "demo"
-            ? DEMO_RESUMES
-            : parseResumeTexts(resumeTexts);
+        const resumes = mode === "demo" ? DEMO_RESUMES : parseResumeTexts(resumeTexts);
         data = await matchFromText(jobTitle, jobDescription, resumes);
       }
       setResults(data);
@@ -79,176 +86,185 @@ export function MatcherApp() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <header className="mb-10 text-center">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-1.5 text-sm font-medium text-indigo-700">
-          <Sparkles className="h-4 w-4" />
-          Microsoft Codeathon · Semantic AI Matching
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-10">
+      {/* Nav */}
+      <header className="mb-10 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <Sparkles className="h-4 w-4" />
+          </div>
+          <div>
+            <h1 className="text-lg font-semibold tracking-tight">HireRe</h1>
+            <p className="text-xs text-muted-foreground">Semantic resume matching</p>
+          </div>
         </div>
-        <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-          Hire<span className="text-indigo-600">Re</span>
-        </h1>
-        <p className="mx-auto mt-3 max-w-2xl text-lg text-slate-600">
-          Intelligent resume-to-job matching using embeddings, skill ontologies, and explainable scores —
-          not just keyword search.
-        </p>
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-slate-500">
-          <span className="inline-flex items-center gap-1 rounded-full border px-3 py-1">
-            <Brain className="h-3.5 w-3.5" /> API: {apiStatus}
-          </span>
-          <span className="inline-flex items-center gap-1 rounded-full border px-3 py-1">
-            <Zap className="h-3.5 w-3.5" /> Synonym-aware matching
-          </span>
-          <span className="inline-flex items-center gap-1 rounded-full border px-3 py-1">
-            <FileText className="h-3.5 w-3.5" /> PDF · DOCX · Text
-          </span>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span
+            className={`h-2 w-2 rounded-full ${
+              apiOnline === null ? "bg-amber-400" : apiOnline ? "bg-emerald-500" : "bg-red-500"
+            }`}
+          />
+          {apiOnline === null ? "Connecting" : apiOnline ? "API online" : "API offline"}
         </div>
       </header>
 
-      <div className="grid gap-8 lg:grid-cols-2">
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Input</CardTitle>
-              <CardDescription>Upload or paste a job + multiple resumes to rank candidates.</CardDescription>
-              <div className="flex flex-wrap gap-2 pt-2">
-                {(["demo", "paste", "upload"] as Mode[]).map((m) => (
-                  <Button
-                    key={m}
-                    size="sm"
-                    variant={mode === m ? "default" : "outline"}
-                    onClick={() => {
-                      if (m === "demo") loadDemo();
-                      else setMode(m);
-                    }}
-                  >
-                    {m === "demo" ? "Demo Data" : m === "paste" ? "Paste Text" : "Upload Files"}
-                  </Button>
-                ))}
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">Job Title</label>
-                <input
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  value={jobTitle}
-                  onChange={(e) => setJobTitle(e.target.value)}
-                  disabled={mode === "demo"}
-                />
-              </div>
+      {/* Hero */}
+      <section className="mb-10 max-w-2xl">
+        <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+          Rank candidates with semantic intelligence
+        </h2>
+        <p className="mt-3 text-muted-foreground leading-relaxed">
+          Match resumes to job descriptions using skill ontologies and embedding similarity —
+          beyond simple keyword search.
+        </p>
+      </section>
 
-              {mode !== "upload" ? (
-                <>
-                  <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700">Job Description</label>
-                    <textarea
-                      className="h-40 w-full rounded-lg border border-slate-200 px-3 py-2 font-mono text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                      value={jobDescription}
-                      onChange={(e) => setJobDescription(e.target.value)}
-                      disabled={mode === "demo"}
+      <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
+        {/* Input panel */}
+        <Card className="h-fit">
+          <CardHeader className="space-y-4">
+            <div>
+              <CardTitle className="text-base">New analysis</CardTitle>
+              <CardDescription>Add a job and resumes to generate ranked matches.</CardDescription>
+            </div>
+            <Tabs options={MODES} value={mode} onChange={handleModeChange} />
+          </CardHeader>
+
+          <CardContent className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="job-title">Job title</Label>
+              <Input
+                id="job-title"
+                value={jobTitle}
+                onChange={(e) => setJobTitle(e.target.value)}
+                disabled={mode === "demo"}
+                placeholder="e.g. Senior Full Stack Engineer"
+              />
+            </div>
+
+            {mode !== "upload" ? (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="job-desc">Job description</Label>
+                  <Textarea
+                    id="job-desc"
+                    className="min-h-[140px] font-mono text-xs"
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    disabled={mode === "demo"}
+                  />
+                </div>
+
+                {mode === "paste" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="resumes">Resumes</Label>
+                    <Textarea
+                      id="resumes"
+                      className="min-h-[160px] font-mono text-xs"
+                      value={resumeTexts}
+                      onChange={(e) => setResumeTexts(e.target.value)}
+                      placeholder="Separate each resume with --- Name ---"
                     />
                   </div>
-                  {mode === "paste" && (
-                    <div>
-                      <label className="mb-1 block text-sm font-medium text-slate-700">
-                        Resumes (separate with --- Name ---)
-                      </label>
-                      <textarea
-                        className="h-48 w-full rounded-lg border border-slate-200 px-3 py-2 font-mono text-xs focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                        value={resumeTexts}
-                        onChange={(e) => setResumeTexts(e.target.value)}
-                      />
-                    </div>
+                )}
+
+                {mode === "demo" && (
+                  <Alert variant="muted">
+                    Pre-loaded with 1 job and 4 sample resumes. Hit analyze for an instant demo.
+                  </Alert>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="job-file">Job file</Label>
+                  <Input
+                    id="job-file"
+                    type="file"
+                    accept=".pdf,.docx,.txt,.md"
+                    className="cursor-pointer file:mr-3 file:text-sm file:font-medium"
+                    onChange={(e) => setJobFile(e.target.files?.[0] || null)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="job-desc-upload">Or paste job description</Label>
+                  <Textarea
+                    id="job-desc-upload"
+                    className="min-h-[100px] text-sm"
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="resume-files">Resume files</Label>
+                  <Input
+                    id="resume-files"
+                    type="file"
+                    accept=".pdf,.docx,.txt,.md"
+                    multiple
+                    className="cursor-pointer file:mr-3 file:text-sm file:font-medium"
+                    onChange={(e) => setResumeFiles(Array.from(e.target.files || []))}
+                  />
+                  {resumeFiles.length > 0 && (
+                    <p className="text-xs text-muted-foreground">{resumeFiles.length} file(s) selected</p>
                   )}
-                  {mode === "demo" && (
-                    <p className="rounded-lg bg-indigo-50 p-3 text-sm text-indigo-800">
-                      Pre-loaded with 1 job + 4 sample resumes. Click <strong>Run Matching</strong> for an instant demo.
-                    </p>
-                  )}
+                </div>
+              </>
+            )}
+
+            {error && <Alert variant="destructive">{error}</Alert>}
+
+            <Separator />
+
+            <Button className="w-full" size="lg" onClick={runMatch} disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  Analyzing…
                 </>
               ) : (
                 <>
-                  <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700">Job File (optional if pasted below)</label>
-                    <input
-                      type="file"
-                      accept=".pdf,.docx,.txt,.md"
-                      className="w-full text-sm"
-                      onChange={(e) => setJobFile(e.target.files?.[0] || null)}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700">Job Description (if no file)</label>
-                    <textarea
-                      className="h-32 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
-                      value={jobDescription}
-                      onChange={(e) => setJobDescription(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700">Resume Files (multiple)</label>
-                    <input
-                      type="file"
-                      accept=".pdf,.docx,.txt,.md"
-                      multiple
-                      className="w-full text-sm"
-                      onChange={(e) => setResumeFiles(Array.from(e.target.files || []))}
-                    />
-                    {resumeFiles.length > 0 && (
-                      <p className="mt-1 text-xs text-slate-500">{resumeFiles.length} file(s) selected</p>
-                    )}
-                  </div>
+                  Analyze candidates
+                  <ArrowRight />
                 </>
               )}
+            </Button>
+          </CardContent>
+        </Card>
 
-              {error && (
-                <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
-                  {error}
-                </div>
-              )}
-
-              <Button className="w-full" size="lg" onClick={runMatch} disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" /> Analyzing with semantic engine...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-4 w-4" /> Run Matching
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="border-indigo-100 bg-gradient-to-br from-indigo-50 to-white">
-            <CardContent className="p-5 text-sm text-slate-600">
-              <p className="font-semibold text-slate-800">Why HireRe beats keyword matching</p>
-              <ul className="mt-2 space-y-1 list-disc pl-5">
-                <li>Maps synonyms: Node.js ↔ JavaScript, K8s ↔ Kubernetes</li>
-                <li>Embedding similarity for related skills (PyTorch → Machine Learning)</li>
-                <li>Weighted score: skills (55%) + semantic fit (30%) + experience (15%)</li>
-                <li>Human-readable explanations for every candidate</li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div>
+        {/* Results panel */}
+        <div className="min-h-[480px]">
           {results ? (
             <ResultsPanel results={results} />
           ) : (
-            <Card className="flex h-full min-h-[400px] items-center justify-center border-dashed">
-              <CardContent className="text-center text-slate-400">
-                <Brain className="mx-auto mb-3 h-12 w-12 opacity-40" />
-                <p className="text-lg font-medium">Results will appear here</p>
-                <p className="mt-1 text-sm">Run matching to see ranked candidates with scores & explanations</p>
+            <Card className="flex h-full min-h-[480px] flex-col items-center justify-center border-dashed bg-muted/20 shadow-none">
+              <CardContent className="flex flex-col items-center px-6 py-16 text-center">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                  <Upload className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <p className="font-medium">No results yet</p>
+                <p className="mt-1 max-w-xs text-sm text-muted-foreground">
+                  Run an analysis to see ranked candidates, skill gaps, and score explanations.
+                </p>
               </CardContent>
             </Card>
           )}
         </div>
       </div>
+
+      {/* Footer stats */}
+      <footer className="mt-16 grid gap-4 border-t pt-8 sm:grid-cols-3">
+        {[
+          { label: "Skill matching", desc: "Synonym-aware ontology + semantic similarity" },
+          { label: "Scoring", desc: "Skills 55% · Semantic 30% · Experience 15%" },
+          { label: "Formats", desc: "PDF, DOCX, and plain text supported" },
+        ].map((item) => (
+          <div key={item.label}>
+            <p className="text-sm font-medium">{item.label}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
+          </div>
+        ))}
+      </footer>
     </div>
   );
 }

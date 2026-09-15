@@ -1,15 +1,14 @@
 """HireRe FastAPI backend — intelligent resume-to-job matching."""
 
-from __future__ import annotations
-
 import os
-from typing import Annotated
+from pathlib import Path
+from typing import Annotated, List, Optional
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.extractor import ParsedProfile, extract_profile
-from app.matcher import get_model_name, match_candidate_to_job
+from app.extractor import extract_profile
+from app.matcher import match_candidate_to_job
 from app.models import CandidateMatchResult, HealthResponse, MatchResponse, TextMatchRequest
 from app.parser import parse_file, parse_text
 
@@ -30,7 +29,8 @@ app.add_middleware(
 
 @app.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
-    return HealthResponse(status="ok", model=get_model_name())
+    model = "all-MiniLM-L6-v2" if os.getenv("HIRERE_USE_EMBEDDINGS") == "1" else "tfidf-fallback"
+    return HealthResponse(status="ok", model=model)
 
 
 @app.post("/match/text", response_model=MatchResponse)
@@ -41,7 +41,7 @@ async def match_from_text(payload: TextMatchRequest) -> MatchResponse:
         raise HTTPException(status_code=400, detail="At least one resume is required")
 
     job_profile = extract_profile(parse_text(payload.job_description))
-    results: list[CandidateMatchResult] = []
+    results: List[CandidateMatchResult] = []
 
     for resume in payload.resumes:
         text = resume.get("text", "")
@@ -64,9 +64,9 @@ async def match_from_text(payload: TextMatchRequest) -> MatchResponse:
 @app.post("/match/upload", response_model=MatchResponse)
 async def match_from_upload(
     job_title: Annotated[str, Form()] = "Open Role",
-    job_description: Annotated[str | None, Form()] = None,
-    job_file: UploadFile | None = File(None),
-    resume_files: list[UploadFile] = File(...),
+    job_description: Annotated[Optional[str], Form()] = None,
+    job_file: Optional[UploadFile] = File(None),
+    resume_files: List[UploadFile] = File(...),
 ) -> MatchResponse:
     if job_file:
         job_bytes = await job_file.read()
@@ -80,14 +80,14 @@ async def match_from_upload(
         raise HTTPException(status_code=400, detail="Upload at least one resume")
 
     job_profile = extract_profile(job_text)
-    results: list[CandidateMatchResult] = []
+    results: List[CandidateMatchResult] = []
 
     for upload in resume_files:
         content = await upload.read()
         if not content:
             continue
         text = parse_file(upload.filename or "resume.txt", content)
-        candidate = extract_profile(text, default_name=PathStem(upload.filename))
+        candidate = extract_profile(text, default_name=path_stem(upload.filename))
         results.append(match_candidate_to_job(job_title, job_profile, candidate))
 
     results.sort(key=lambda r: r.overall_score, reverse=True)
@@ -98,9 +98,7 @@ async def match_from_upload(
     )
 
 
-def PathStem(filename: str | None) -> str | None:
+def path_stem(filename: Optional[str]) -> Optional[str]:
     if not filename:
         return None
-    from pathlib import Path
-
     return Path(filename).stem.replace("_", " ").replace("-", " ").title()
