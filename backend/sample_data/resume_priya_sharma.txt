@@ -1,0 +1,23 @@
+Priya Sharma
+priya.sharma@email.com | Seattle, WA
+
+SUMMARY
+ML Engineer transitioning to full-stack with strong Python and cloud skills.
+4 years of experience in data and backend systems.
+
+SKILLS
+Python, PyTorch, TensorFlow, NLP, Machine Learning, FastAPI, PostgreSQL,
+AWS, Docker, Kubernetes, Git, CI/CD, JavaScript, React
+
+EXPERIENCE
+ML Engineer | AI Labs | 2022 – Present
+- Built NLP pipelines and LLM-powered text classification
+- Deployed models via FastAPI on AWS with Docker/Kubernetes
+- 4 years of professional experience
+
+Data Engineer | DataFlow Co | 2020 – 2022
+- ETL pipelines in Python, PostgreSQL databases
+- Implemented CI/CD with GitHub Actions
+
+EDUCATION
+M.S. Computer Science, University of Washington

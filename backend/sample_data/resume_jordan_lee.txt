@@ -1,0 +1,21 @@
+Jordan Lee
+jordan.lee@email.com | Austin, TX
+
+SUMMARY
+Backend-focused developer with 3 years of experience in enterprise Java systems.
+
+SKILLS
+Java, Spring Boot, Kotlin, MySQL, REST API, Git, Docker, Linux, Agile
+
+EXPERIENCE
+Backend Developer | Enterprise Solutions Ltd | 2022 – Present
+- Built microservices with Spring Boot and MySQL
+- Containerized applications with Docker
+- 3 years of professional experience
+
+Junior Developer | CodeWorks | 2021 – 2022
+- Maintained legacy Java applications
+- Basic Python scripting for automation tasks
+
+EDUCATION
+B.Tech Information Technology

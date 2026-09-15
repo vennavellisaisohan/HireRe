@@ -1,0 +1,27 @@
+Senior Full Stack Engineer — HireRe Demo Job
+
+About the role:
+We're hiring a Senior Full Stack Engineer to build our AI-powered recruitment platform.
+5+ years of software engineering experience required.
+
+Required skills:
+- Python (FastAPI/Django)
+- JavaScript / TypeScript
+- React and modern frontend frameworks
+- PostgreSQL or similar relational databases
+- Docker and container orchestration
+- AWS cloud services
+- REST API design
+- Git and CI/CD pipelines
+
+Nice to have:
+- Machine Learning / NLP experience
+- Kubernetes
+- Agile/Scrum methodology
+- LLM integration
+
+Responsibilities:
+- Design and ship scalable backend services
+- Build intuitive recruiter-facing UIs
+- Collaborate with ML team on semantic matching features
+- Mentor junior engineers
